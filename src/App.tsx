@@ -1,26 +1,34 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import {AppBar, Toolbar, Typography, IconButton, Box} from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import SearchPage from './pages/SearchPage';
+import AnimeDetailPage from './pages/AnimeDetailPage';
+import Footer from "./components/Footer";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App: React.FC<{ toggleTheme: () => void }> = ({ toggleTheme }) => {
+    return (
+        <Router>
+            <AppBar position="static">
+                <Toolbar>
+                    <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, color: 'inherit', textDecoration: 'none' }}>
+                        Anime Finder
+                    </Typography>
+                    <IconButton color="inherit" onClick={toggleTheme}>
+                        <Brightness4Icon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+
+            <Box sx={{ minHeight: 'calc(100vh - 64px - 56px)' }}>
+                <Routes>
+                    <Route path="/" element={<SearchPage />} />
+                    <Route path="/anime/:id" element={<AnimeDetailPage />} />
+                </Routes>
+            </Box>
+            <Footer/>
+        </Router>
+    );
+};
 
 export default App;
