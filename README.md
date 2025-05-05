@@ -22,7 +22,7 @@ Search and explore anime using the [Jikan API](https://docs.api.jikan.moe). Buil
 - TypeScript (optional)
 
 ## Application Show
-- https://astonishing-gumption-6d3a7a.netlify.app/
+- https://fascinating-meringue-33ff1c.netlify.app/
 
 ## 📦 Installation
 
