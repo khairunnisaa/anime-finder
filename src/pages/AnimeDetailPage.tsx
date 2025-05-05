@@ -1,47 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { getAnimeDetails } from '../services/api';
 import {
     Container,
     Typography,
-    CircularProgress,
     CardMedia,
     CardContent,
-    CardActions,
     Button,
-    Card, Skeleton, Grid, Box
+    Card,
+    Skeleton,
+    Grid,
+    Box,
+    Divider,
 } from '@mui/material';
+import { useAnimeDetail } from '../hooks/useAnimeDetail';
 
 const AnimeDetailPage: React.FC = () => {
     const { id } = useParams();
-    const [anime, setAnime] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchAnime = async () => {
-            try {
-                const res = await getAnimeDetails(id!);
-                setAnime(res.data.data);
-            } catch (err) {
-                console.error('Error loading anime detail:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAnime();
-    }, [id]);
-
-    if (loading) return <CircularProgress sx={{ mt: 4 }} />;
-
-    if (!anime) return <Typography sx={{ mt: 4 }}>Anime not found.</Typography>;
+    const { anime, loading, error } = useAnimeDetail(id);
 
     const renderSkeleton = () => (
         <Grid container spacing={4}>
-            <Grid size={{xs: 12, sm: 4}}>
+            <Grid size={{xs:12, sm:4}}>
                 <Skeleton variant="rectangular" width="100%" height={300} />
             </Grid>
-            <Grid size={{xs: 12, sm: 8}}>
+            <Grid size={{xs:12, sm:8}}>
                 <Typography variant="h4">
                     <Skeleton width="60%" />
                 </Typography>
@@ -55,13 +37,17 @@ const AnimeDetailPage: React.FC = () => {
 
     if (loading) return renderSkeleton();
 
+    if (error) return <Typography sx={{ mt: 4 }} color="error">{error}</Typography>;
+
+    if (!anime) return <Typography sx={{ mt: 4 }}>Anime not found.</Typography>;
+
     return (
         <Container sx={{ mt: 4 }}>
 
-            <Card>
+            <Card sx={{ display: 'flex', flexWrap: 'wrap' }}>
                 <CardMedia
                     component="img"
-                    alt="green iguana"
+                    alt={anime.images.jpg.image_url}
                     height="250"
                     image={anime.images.jpg.image_url}
                 />
@@ -69,38 +55,37 @@ const AnimeDetailPage: React.FC = () => {
                     <Typography gutterBottom variant="h5" component="div">
                         {anime.title}
                     </Typography>
-                    <Typography variant="body1" sx={{ mt: 2 }}>
+                    <Divider />
+                    <Typography variant="body1" textAlign={'justify'} sx={{ mt: 2 }}>
                         {anime.synopsis || 'No synopsis available.'}
                     </Typography>
-
-                    <Grid mt={2} size={{ xs:12}}>
+                    <Grid size={{xs:12, sm:8}}>
                         <Typography variant="h6" gutterBottom>
                             Stats
                         </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                            <Box sx={{ backgroundColor: 'greenyellow', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                        <Divider />
+                        <Box mt={2} sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                            <Box width={'150px'} sx={{ backgroundColor: 'greenyellow', p: 2, borderRadius: 2, boxShadow: 1 }}>
                                 <Typography variant="body1"><strong>Score:</strong> {anime.score ?? 'N/A'} / 10</Typography>
                             </Box>
-                            <Box sx={{ backgroundColor: 'orange', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                            <Box width={'150px'} sx={{ backgroundColor: 'orange', p: 2, borderRadius: 2, boxShadow: 1 }}>
                                 <Typography variant="body1"><strong>Rated By:</strong> {anime.scored_by?.toLocaleString() ?? 'N/A'} users</Typography>
                             </Box>
-                            <Box sx={{ backgroundColor: 'aliceblue', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                            <Box width={'150px'} sx={{ backgroundColor: 'aliceblue', p: 2, borderRadius: 2, boxShadow: 1 }}>
                                 <Typography variant="body1"><strong>Popularity Rank:</strong> #{anime.popularity ?? 'N/A'}</Typography>
                             </Box>
-                            <Box sx={{ backgroundColor: 'cornsilk', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                            <Box width={'150px'} sx={{ backgroundColor: 'cornsilk', p: 2, borderRadius: 2, boxShadow: 1 }}>
                                 <Typography variant="body1"><strong>Members:</strong> {anime.members?.toLocaleString() ?? 'N/A'}</Typography>
                             </Box>
-
-                            <Box sx={{ backgroundColor: 'cornflowerblue', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                            <Box width={'150px'} sx={{ backgroundColor: 'cornflowerblue', p: 2, borderRadius: 2, boxShadow: 1 }}>
                                 <Typography variant="body1"><strong>Rating:</strong> {anime.rating ?? 'N/A'}</Typography>
                             </Box>
                         </Box>
                     </Grid>
-
+                    <Box mt={2}>
+                        <Button variant="contained" href="/" size="small">Back</Button>
+                    </Box>
                 </CardContent>
-                <CardActions>
-                    <Button variant="text" href="/" size="small">Back</Button>
-                </CardActions>
             </Card>
         </Container>
     );
