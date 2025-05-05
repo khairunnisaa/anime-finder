@@ -21,7 +21,7 @@ Search and explore anime using the [Jikan API](https://docs.api.jikan.moe). Buil
 - Axios / Fetch
 - TypeScript (optional)
 
-## Application Show
+## 📄 Application Show
 - https://fascinating-meringue-33ff1c.netlify.app/
 
 ## 📦 Installation

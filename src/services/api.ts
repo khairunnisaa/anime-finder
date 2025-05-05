@@ -16,5 +16,5 @@ export const searchAnime = (query: string, page: number, cancelToken: AbortSigna
     });
 
 export const getAnimeDetails = (id: string, signal?: AbortSignal) => {
-    return axios.get(`https://api.jikan.moe/v4/anime/${id}`, { signal });
+    return instance.get(`/anime/${id}`, { signal });
 };
