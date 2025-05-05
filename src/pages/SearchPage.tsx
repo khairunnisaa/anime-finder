@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     TextField,
     Grid,
@@ -27,19 +27,23 @@ const SearchPage: React.FC = () => {
 
     const { results, loading, error, lastPage, noResults } = useAnimeSearch({ query, page });
 
-    const handleSearchSubmit = () => {
+    const handleSearchSubmit = (): void => {
         const trimmed = inputQuery.trim();
         if (!trimmed) return;
 
         setQuery(trimmed);
         setPage(1);
 
-        const newRecent = [trimmed, ...recentSearches.filter(q => q !== trimmed)].slice(0, 5);
+        const newRecent = [
+            trimmed,
+            ...recentSearches.filter(q => q.toLowerCase() !== trimmed.toLowerCase())
+        ].slice(0, 5);
+
         setRecentSearches(newRecent);
         localStorage.setItem('recentSearches', JSON.stringify(newRecent));
     };
 
-    const handleReset = () => {
+    const handleReset = (): void => {
         setInputQuery('');
         setQuery('');
         setPage(1);
@@ -51,16 +55,19 @@ const SearchPage: React.FC = () => {
         if (stored) {
             setRecentSearches(JSON.parse(stored));
         }
+    }, []);
 
+    // Handle error or no result snackbar
+    useEffect(() => {
         if (error || noResults) {
             setSnackbarOpen(true);
         }
     }, [error, noResults]);
 
-    const renderSkeletons = () => (
+    const renderSkeletons = useMemo(() => (
         <Grid container spacing={2} sx={{ mt: 2 }}>
             {Array.from({ length: 6 }).map((_, index) => (
-                <Grid key={index} size={{xs:12, sm:6, md:4}}>
+                <Grid size={{xs:12, sm:6, md:4}} key={index}>
                     <Box sx={{ width: '100%' }}>
                         <Skeleton variant="rectangular" width="100%" height={300} />
                         <Skeleton variant="text" sx={{ mt: 1 }} />
@@ -69,11 +76,14 @@ const SearchPage: React.FC = () => {
                 </Grid>
             ))}
         </Grid>
-    );
+    ), []);
 
     return (
         <Container sx={{ mt: 4 }}>
-            <Hero />
+            <Box mb={4}>
+                <Hero />
+            </Box>
+
             <Box
                 border={1}
                 borderRadius={3}
@@ -89,31 +99,21 @@ const SearchPage: React.FC = () => {
             >
                 <Typography variant="subtitle1">Search :</Typography>
                 <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
-                <TextField
-                    fullWidth
-                    placeholder="Search anime..."
-                    value={inputQuery}
-                    onChange={(e) => setInputQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            handleSearchSubmit();
-                        }
-                    }}
-                    variant="outlined"
-                />
-
-                    <Button
-                        variant="contained"
-                        onClick={handleSearchSubmit}
-                    >Search
-                    </Button>
-                    <Button
+                    <TextField
+                        fullWidth
+                        placeholder="Search anime..."
+                        value={inputQuery}
+                        onChange={(e) => setInputQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSearchSubmit();
+                            }
+                        }}
                         variant="outlined"
-                        color="secondary"
-                        onClick={handleReset}
-                    >
-                        Reset
-                    </Button>
+                    />
+
+                    <Button variant="contained" onClick={handleSearchSubmit}>Search</Button>
+                    <Button variant="outlined" color="secondary" onClick={handleReset}>Reset</Button>
                 </Box>
 
                 {recentSearches.length > 0 && (
@@ -139,8 +139,6 @@ const SearchPage: React.FC = () => {
                 )}
             </Box>
 
-
-
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
@@ -160,8 +158,7 @@ const SearchPage: React.FC = () => {
                 </Box>
             )}
 
-
-            {loading && renderSkeletons()}
+            {loading && renderSkeletons}
 
             {!loading && results.length > 0 && (
                 <Box
