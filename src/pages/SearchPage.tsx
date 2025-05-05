@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-    TextField,
-    Grid,
     Pagination,
     Container,
     Box,
-    Typography,
-    Skeleton,
-    Button,
     Snackbar,
-    Alert,
+    Alert
 } from '@mui/material';
 
 import { useNavigate } from 'react-router-dom';
 import { useAnimeSearch } from '../hooks/useAnimeSearch';
-import AnimeCard from '../components/AnimeCard';
 import Hero from '../components/Hero';
+import SearchBar from '../components/SearchBar';
+import NoResultsBox from '../components/NoResultBox';
+import AnimeSkeletonGrid from '../components/SkeletonGrid';
+import SearchResultsGrid from '../components/SearchResultGrid';
 
 const SearchPage: React.FC = () => {
     const [inputQuery, setInputQuery] = useState('');
@@ -27,7 +25,7 @@ const SearchPage: React.FC = () => {
 
     const { results, loading, error, lastPage, noResults } = useAnimeSearch({ query, page });
 
-    const handleSearchSubmit = (): void => {
+    const handleSearchSubmit = useCallback((): void => {
         const trimmed = inputQuery.trim();
         if (!trimmed) return;
 
@@ -41,15 +39,14 @@ const SearchPage: React.FC = () => {
 
         setRecentSearches(newRecent);
         localStorage.setItem('recentSearches', JSON.stringify(newRecent));
-    };
+    }, [inputQuery, recentSearches]);
 
-    const handleReset = (): void => {
+    const handleReset = useCallback((): void => {
         setInputQuery('');
         setQuery('');
         setPage(1);
-    };
+    }, []);
 
-    // Load recent searches from localStorage on mount
     useEffect(() => {
         const stored = localStorage.getItem('recentSearches');
         if (stored) {
@@ -57,26 +54,13 @@ const SearchPage: React.FC = () => {
         }
     }, []);
 
-    // Handle error or no result snackbar
     useEffect(() => {
         if (error || noResults) {
             setSnackbarOpen(true);
         }
     }, [error, noResults]);
 
-    const renderSkeletons = useMemo(() => (
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-            {Array.from({ length: 6 }).map((_, index) => (
-                <Grid size={{xs:12, sm:6, md:4}} key={index}>
-                    <Box sx={{ width: '100%' }}>
-                        <Skeleton variant="rectangular" width="100%" height={300} />
-                        <Skeleton variant="text" sx={{ mt: 1 }} />
-                        <Skeleton variant="text" width="60%" />
-                    </Box>
-                </Grid>
-            ))}
-        </Grid>
-    ), []);
+    const errorMessage = error || (noResults ? `No results found for "${query}"` : '');
 
     return (
         <Container sx={{ mt: 4 }}>
@@ -84,60 +68,19 @@ const SearchPage: React.FC = () => {
                 <Hero />
             </Box>
 
-            <Box
-                border={1}
-                borderRadius={3}
-                borderColor={'cornflowerblue'}
-                bgcolor={'white'}
-                sx={{
-                    position: 'sticky',
-                    top: 10,
-                    zIndex: 10,
-                    py: 1,
-                    px: 2,
+            <SearchBar
+                inputQuery={inputQuery}
+                setInputQuery={setInputQuery}
+                onSubmit={handleSearchSubmit}
+                onReset={handleReset}
+                recentSearches={recentSearches}
+                onSelectRecent={(search) => {
+                    setInputQuery(search);
+                    setQuery(search);
+                    setPage(1);
                 }}
-            >
-                <Typography variant="subtitle1">Search :</Typography>
-                <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
-                    <TextField
-                        fullWidth
-                        placeholder="Search anime..."
-                        value={inputQuery}
-                        onChange={(e) => setInputQuery(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                handleSearchSubmit();
-                            }
-                        }}
-                        variant="outlined"
-                    />
-
-                    <Button variant="contained" onClick={handleSearchSubmit}>Search</Button>
-                    <Button variant="outlined" color="secondary" onClick={handleReset}>Reset</Button>
-                </Box>
-
-                {recentSearches.length > 0 && (
-                    <Box mt={2}>
-                        <Typography variant="subtitle1">Recent Searches:</Typography>
-                        <Box display="flex" gap={1} flexWrap="wrap">
-                            {recentSearches.map((search, index) => (
-                                <Button
-                                    key={index}
-                                    size="small"
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setInputQuery(search);
-                                        setQuery(search);
-                                        setPage(1);
-                                    }}
-                                >
-                                    {search}
-                                </Button>
-                            ))}
-                        </Box>
-                    </Box>
-                )}
-            </Box>
+                loading={loading}
+            />
 
             <Snackbar
                 open={snackbarOpen}
@@ -146,39 +89,16 @@ const SearchPage: React.FC = () => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
                 <Alert severity={error ? 'error' : 'info'} onClose={() => setSnackbarOpen(false)} sx={{ width: '100%' }}>
-                    {error || (noResults && `No results found for "${query}"`)}
+                    {errorMessage}
                 </Alert>
             </Snackbar>
 
-            {noResults && (
-                <Box mt={2} border={1} borderColor={'red'} bgcolor={'red'} borderRadius={3} p={2}>
-                    <Typography color={'white'} textAlign={'center'}>
-                        {error || (noResults && `No results found for anime title "${query}"`)}
-                    </Typography>
-                </Box>
-            )}
+            {noResults && <NoResultsBox message={errorMessage} />}
 
-            {loading && renderSkeletons}
+            {loading && <AnimeSkeletonGrid />}
 
             {!loading && results.length > 0 && (
-                <Box
-                    sx={{
-                        mt: 2,
-                        maxHeight: '70vh',
-                        overflowY: 'auto',
-                        border: '1px solid #ccc',
-                        borderRadius: 1,
-                        p: 1,
-                    }}
-                >
-                    <Grid container spacing={2}>
-                        {results.map((anime) => (
-                            <Grid size={{xs:12, sm:6, md:3}} key={anime.mal_id}>
-                                <AnimeCard anime={anime} onClick={() => navigate(`/anime/${anime.mal_id}`)} />
-                            </Grid>
-                        ))}
-                    </Grid>
-                </Box>
+                <SearchResultsGrid results={results} onAnimeClick={(id) => navigate(`/anime/${id}`)} />
             )}
 
             {results.length > 0 && (

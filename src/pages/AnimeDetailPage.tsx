@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {
     Container,
     Typography,
@@ -17,6 +17,7 @@ import { useAnimeDetail } from '../hooks/useAnimeDetail';
 const AnimeDetailPage: React.FC = () => {
     const { id } = useParams();
     const { anime, loading, error } = useAnimeDetail(id);
+    const navigate = useNavigate();
 
     const renderSkeleton = () => (
         <Grid container spacing={4}>
@@ -83,7 +84,7 @@ const AnimeDetailPage: React.FC = () => {
                         </Box>
                     </Grid>
                     <Box mt={2}>
-                        <Button variant="contained" href="/" size="small">Back</Button>
+                        <Button variant="contained" href="/" onClick={() => navigate('')}>Back</Button>
                     </Box>
                 </CardContent>
             </Card>
