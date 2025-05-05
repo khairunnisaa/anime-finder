@@ -7,44 +7,29 @@ import {
     CardContent,
     Button,
     Card,
-    Skeleton,
     Grid,
     Box,
     Divider,
 } from '@mui/material';
 import { useAnimeDetail } from '../hooks/useAnimeDetail';
+import SingleSkeleton from "../components/SingleSkeleton";
+import { statBoxStyles, StatBoxType } from '../styles/statBoxStyles';
 
 const AnimeDetailPage: React.FC = () => {
     const { id } = useParams();
     const { anime, loading, error } = useAnimeDetail(id);
     const navigate = useNavigate();
 
-    const renderSkeleton = () => (
-        <Grid container spacing={4}>
-            <Grid size={{xs:12, sm:4}}>
-                <Skeleton variant="rectangular" width="100%" height={300} />
-            </Grid>
-            <Grid size={{xs:12, sm:8}}>
-                <Typography variant="h4">
-                    <Skeleton width="60%" />
-                </Typography>
-                <Skeleton width="80%" />
-                <Skeleton width="90%" />
-                <Skeleton width="95%" />
-                <Skeleton width="70%" />
-            </Grid>
-        </Grid>
-    );
-
-    if (loading) return renderSkeleton();
+    if (loading) return <SingleSkeleton />;
 
     if (error) return <Typography sx={{ mt: 4 }} color="error">{error}</Typography>;
 
     if (!anime) return <Typography sx={{ mt: 4 }}>Anime not found.</Typography>;
 
+
     return (
         <Container sx={{ mt: 4 }}>
-
+            {loading && <SingleSkeleton/>}
             <Card sx={{ display: 'flex', flexWrap: 'wrap' }}>
                 <CardMedia
                     component="img"
@@ -66,25 +51,26 @@ const AnimeDetailPage: React.FC = () => {
                         </Typography>
                         <Divider />
                         <Box mt={2} sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                            <Box width={'150px'} sx={{ backgroundColor: 'greenyellow', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                                <Typography variant="body1"><strong>Score:</strong> {anime.score ?? 'N/A'} / 10</Typography>
+                            <Box sx={statBoxStyles[StatBoxType.Score]}>
+                                <Typography variant="h5" fontWeight={800}>{anime.score ?? 'N/A'}</Typography>
+                                <Typography variant="caption" textTransform={'uppercase'}>{anime.scored_by?.toLocaleString() ?? 'N/A'} users</Typography>
                             </Box>
-                            <Box width={'150px'} sx={{ backgroundColor: 'orange', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                                <Typography variant="body1"><strong>Rated By:</strong> {anime.scored_by?.toLocaleString() ?? 'N/A'} users</Typography>
+                            <Box sx={statBoxStyles[StatBoxType.RatedBy]}>
+                                <Typography variant="h5" fontWeight={800}>#{anime.rank ?? 'N/A'}</Typography>
+                                <Typography variant="caption" textTransform={'uppercase'}>Ranked</Typography>
                             </Box>
-                            <Box width={'150px'} sx={{ backgroundColor: 'aliceblue', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                                <Typography variant="body1"><strong>Popularity Rank:</strong> #{anime.popularity ?? 'N/A'}</Typography>
+                            <Box sx={statBoxStyles[StatBoxType.Popularity]}>
+                                <Typography variant="h5" fontWeight={800}>#{anime.popularity ?? 'N/A'}</Typography>
+                                <Typography variant="caption" textTransform={'uppercase'}>Popularity</Typography>
                             </Box>
-                            <Box width={'150px'} sx={{ backgroundColor: 'cornsilk', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                                <Typography variant="body1"><strong>Members:</strong> {anime.members?.toLocaleString() ?? 'N/A'}</Typography>
-                            </Box>
-                            <Box width={'150px'} sx={{ backgroundColor: 'cornflowerblue', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                                <Typography variant="body1"><strong>Rating:</strong> {anime.rating ?? 'N/A'}</Typography>
+                            <Box sx={statBoxStyles[StatBoxType.Members]}>
+                                <Typography variant="h5" fontWeight={800}>{anime.members?.toLocaleString() ?? 'N/A'}</Typography>
+                                <Typography variant="caption" textTransform={'uppercase'}>Members</Typography>
                             </Box>
                         </Box>
                     </Grid>
                     <Box mt={2}>
-                        <Button variant="contained" href="/" onClick={() => navigate('')}>Back</Button>
+                        <Button variant="contained" onClick={() => navigate('/')}>Back</Button>
                     </Box>
                 </CardContent>
             </Card>

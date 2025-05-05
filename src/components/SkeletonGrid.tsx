@@ -2,7 +2,7 @@
 import React from 'react';
 import { Grid, Box, Skeleton } from '@mui/material';
 
-const AnimeSkeletonGrid: React.FC = () => {
+const SkeletonGrid: React.FC = () => {
     return (
         <Grid container spacing={2} sx={{ mt: 2 }}>
             {Array.from({ length: 6 }).map((_, index) => (
@@ -18,4 +18,4 @@ const AnimeSkeletonGrid: React.FC = () => {
     );
 };
 
-export default AnimeSkeletonGrid;
+export default SkeletonGrid;

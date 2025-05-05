@@ -7,6 +7,7 @@ export interface Anime {
             image_url: string;
         };
     };
+    rank?:number,
     score?: number;
     scored_by?: number;
     popularity?: number;

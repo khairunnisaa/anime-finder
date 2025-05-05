@@ -1,5 +1,6 @@
 import React from 'react';
 import {Card, CardMedia, CardContent, Typography} from '@mui/material';
+import { Anime } from '../types/anime';
 
 interface Props {
     anime: {

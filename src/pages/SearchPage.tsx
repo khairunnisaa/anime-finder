@@ -12,7 +12,7 @@ import { useAnimeSearch } from '../hooks/useAnimeSearch';
 import Hero from '../components/Hero';
 import SearchBar from '../components/SearchBar';
 import NoResultsBox from '../components/NoResultBox';
-import AnimeSkeletonGrid from '../components/SkeletonGrid';
+import SkeletonGrid from '../components/SkeletonGrid';
 import SearchResultsGrid from '../components/SearchResultGrid';
 
 const SearchPage: React.FC = () => {
@@ -95,7 +95,7 @@ const SearchPage: React.FC = () => {
 
             {noResults && <NoResultsBox message={errorMessage} />}
 
-            {loading && <AnimeSkeletonGrid />}
+            {loading && <SkeletonGrid />}
 
             {!loading && results.length > 0 && (
                 <SearchResultsGrid results={results} onAnimeClick={(id) => navigate(`/anime/${id}`)} />
