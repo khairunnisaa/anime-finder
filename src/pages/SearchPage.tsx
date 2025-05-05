@@ -141,8 +141,8 @@ const SearchPage: React.FC = () => {
 
             {results.length > 0 && (
                 <Box
+                    justifyItems={'right'}
                     sx={{
-                        position: 'sticky',
                         top: 10,
                         zIndex: 10,
                         bgcolor: 'aliceblue',
